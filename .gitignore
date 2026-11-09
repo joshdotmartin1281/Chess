@@ -1,0 +1,42 @@
+# Haskell build artifacts
+dist/
+dist-newstyle/
+.stack-work/
+
+# Compiled Haskell files
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+*.hie
+
+# GHC profiling files
+*.prof
+*.hp
+*.eventlog
+
+# Cabal generated files
+cabal.project.local
+cabal.sandbox.config
+
+# Stack generated files
+.stack-work/
+stack.yaml.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
