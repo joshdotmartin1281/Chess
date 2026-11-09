@@ -1,6 +1,13 @@
 module Engine.MoveGen
     ( pieceMoves
     , allMoves
+    , opposite
+    , pawnDirection
+    , offsetSquare
+    , knightOffsets
+    , bishopOffsets
+    , rookOffsets
+    , kingOffsets
     ) where
 
 import Engine.Types
@@ -36,6 +43,7 @@ promotionMoves from to =
     ]
 
 
+captureOffsets :: Color -> [(Int, Int)]
 captureOffsets color =
     [(-1, pawnDirection color), (1, pawnDirection color)]
 
@@ -49,7 +57,7 @@ pawnMoves pos color from =
             promotionMoves from to
         | otherwise =
             [Move from to Nothing]
-    
+
     singleMove =
         case offsetSquare from (0, pawnDirection color) of
             Just to
@@ -73,7 +81,7 @@ pawnMoves pos color from =
             _ ->
                 []
 
-    enPassantMoves = 
+    enPassantMoves =
         case enPassantTarget pos of
             Nothing ->
                 []
@@ -96,6 +104,7 @@ pawnMoves pos color from =
             ]
 
 
+knightOffsets :: [(Int, Int)]
 knightOffsets =
     [ (1,2)
     , (2,1)
@@ -117,6 +126,7 @@ knightMoves pos color fromSq =
     ]
 
 
+bishopOffsets :: [(Int, Int)]
 bishopOffsets =
     [ (1,1)
     , (1,-1)
@@ -130,6 +140,7 @@ bishopMoves pos color fromSq =
     concatMap (ray pos color fromSq) bishopOffsets
 
 
+rookOffsets :: [(Int, Int)]
 rookOffsets =
     [ (1,0)
     , (0,1)
@@ -143,6 +154,7 @@ rookMoves pos color fromSq =
     concatMap (ray pos color fromSq) rookOffsets
 
 
+queenOffsets :: [(Int, Int)]
 queenOffsets =
     bishopOffsets ++ rookOffsets
 
@@ -152,6 +164,7 @@ queenMoves pos color fromSq =
     concatMap (ray pos color fromSq) queenOffsets
 
 
+kingOffsets :: [(Int, Int)]
 kingOffsets =
     bishopOffsets ++ rookOffsets
 
@@ -191,6 +204,16 @@ queenSideSquares White = [Square B R1, Square C R1, Square D R1]
 queenSideSquares Black = [Square B R8, Square C R8, Square D R8]
 
 
+kingSideRight :: Color -> CastlingRights -> Bool
+kingSideRight White = whiteKingSide
+kingSideRight Black = blackKingSide
+
+
+queenSideRight :: Color -> CastlingRights -> Bool
+queenSideRight White = whiteQueenSide
+queenSideRight Black = blackQueenSide
+
+
 castleMoves :: Position -> Color -> Square -> [Move]
 castleMoves pos color fromSq
     | fromSq /= kingStartSquare color = []
@@ -210,10 +233,14 @@ castleMoves pos color fromSq
 
 canCastleKingSide :: Position -> Color -> Bool
 canCastleKingSide pos color =
-    kingExists
+    hasRight
+    && kingExists
     && rookExists
     && squaresEmpty
   where
+    hasRight =
+        kingSideRight color (castlingRights pos)
+
     kingExists =
         pieceAt (kingStartSquare color) (board pos) ==
             Just (Piece color King)
@@ -231,10 +258,14 @@ canCastleKingSide pos color =
 
 canCastleQueenSide :: Position -> Color -> Bool
 canCastleQueenSide pos color =
-    kingExists
+    hasRight
+    && kingExists
     && rookExists
     && squaresEmpty
   where
+    hasRight =
+        queenSideRight color (castlingRights pos)
+
     kingExists =
         pieceAt (kingStartSquare color) (board pos) ==
             Just (Piece color King)

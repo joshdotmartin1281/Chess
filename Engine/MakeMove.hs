@@ -1,5 +1,6 @@
 module Engine.MakeMove
     ( makeMove
+    , isCastleMove
     ) where
 
 import Engine.Board
